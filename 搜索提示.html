@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			ul {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
+			#box {
+				width: 500px;
+				height: 30px;
+				margin: 200px auto;
+			}
+			input {
+				width: 100%;
+				height: 30px;
+			}
+			#list {
+				width: 100%;
+				display: none;
+			}
+			#list li {
+				width: 100%;
+				height: 30px;
+				margin-top: 3px;
+				background: #16A085;
+			}
+			#list a {
+				font: 16px/30px "宋体";
+				color: #fff;
+				text-decoration: none;
+				display: block;
+				width: 100%;
+			}
+			#list a:hover,.hover {
+				background: #00FF99;
+			}
+			.active {
+				background: #2C3E50;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="box">
+			<input type="text" id="s"/>
+			<ul id="list">
+				<li><a href="javascript:;">《第七个读者》</a></li>
+		        <li><a href="javascript:;">《 心理罪 画像》</a></li>
+		        <li><a href="javascript:;">《 心理罪 教化场》</a></li>
+		        <li><a href="javascript:;">《 心理罪 暗河》</a></li>
+		        <li><a href="javascript:;">《 心理罪 城市之光》</a></li>
+		        <li><a href="javascript:;">《地球往事》</a></li>
+		        <li><a href="javascript:;">《黑暗森林》</a></li>
+		        <li><a href="javascript:;">《死神永生》</a></li>
+		        <li><a href="javascript:;">《乡村教师》</a></li>
+		        <li><a href="javascript:;">《地球大炮》</a></li>
+			</ul>
+		</div>
+		<script>
+			var list = document.getElementById("list");
+			var li = list.children;
+			var as = document.getElementsByTagName('a');
+			var s = document.getElementById("s");
+			var lis = Array.from(li);
+			var arr = []; // 用来记录选中项
+			var num = -1; // 记录当前选中的是第几个
+			var old = 0; //初始值,用来记录之前是否选择过
+			
+			// 点击input
+			s.addEventListener('focus',fnFocus);
+			function fnFocus() {
+				list.style.display = "block";
+			}
+			
+			// 点击li
+			for(var i = 0; i < as.length; i++) {
+				lis[i].addEventListener('click',fnClick);
+			}
+			
+			function fnClick(ev) {
+				//多选
+				s.focus();
+				if(ev.ctrlKey) {
+					more(ev.target.innerHTML,ev.target);
+				}else {
+					s.blur();
+					one(ev.target.innerHTML,ev.target);
+					list.style.display = "none";
+				}
+			}
+			
+			function more(val,a) {
+				//判断数组有没有长度
+				if(!arr.length) { // 没有长度，直接添加
+					arr.push(val);
+					s.value = val;
+					a.className = "active";
+					a.setAttribute('index',1);
+				}else {
+					// 但前点击的内容数组中有没有
+					if(arr.indexOf(val) != -1) { // 有
+						// 就删除
+						arr.splice(arr.indexOf(val),1);
+						a.className = "";
+						a.removeAttribute('index');
+					} else {
+						//如果没有就添加
+						arr.push(val);
+						a.className = 'active';
+						a.setAttribute('index',1);
+					}
+					s.value = arr.join('');
+				}
+			}
+			
+			function clear() {
+				for(var i = 0; i < as.length; i++) {
+					as[i].className = "";
+					as[i].removeAttribute('index');
+				}
+			}
+			function one(val,a) {
+				clear();
+				if(arr.indexOf(val) != -1){ // 查看点击的内容在数组中是否存在
+				// 如果数组的长度大于1，那就清空所有，把当前的加上
+					if(arr.length > 1) {
+						arr.length = 0;
+						arr[0] = val;
+						s.value = val;
+						a.className = 'active';
+						a.setAttribute('index',1);
+					} else {
+						// 有一个内容，并且跟点击的相同
+						arr.length = 0;
+						s.value = '';
+						a.removeAttribute('index');
+					}
+				} else {
+					// 数组中没有内容，直接添加
+					arr.length = 0;
+					arr[0] = val;
+					s.value = val;
+					a.className = "active";
+					a.setAttribute('index',1);
+				}
+			}
+			
+			// 按方向键
+			s.addEventListener('keydown',fnDown);
+			
+			function fnDown(ev) {
+				switch(ev.keyCode){
+					case 40:
+						num++;
+						if(num > lis.length -1) num = 0;
+						// 给当前选中的加上标记，如果old有标记，就加上active的效果
+						if(as[old].getAttribute('index')) {
+							as[old].className = "active";
+						} else {
+							as[old].className = "";
+						}
+						as[num].className = "hover";
+						old = num;
+					break;
+					case 38:
+						num--;
+						if(num < 0)num = as.length-1;
+						if(as[old].getAttribute('index')) {
+							as[old].className = "active";
+						} else {
+							as[old].className = "";
+						}
+						as[num].className = "hover";
+						old = num;
+					break;
+					// 如果按enter键
+					case 13:
+						if(ev.ctrlKey) {
+							more(as[num].innerHTML,as[num]);
+						} else {
+							one(as[num].innerHTML,as[num]);
+						}
+					break;
+				}
+				ev.preventDefault();
+			}
+		</script>
+	</body>
+</html>
